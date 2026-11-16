@@ -108,7 +108,7 @@ class ProfileTest extends TestCase
         $response = $this
             ->actingAs($user)
             ->post('/profile/photo', [
-                'photo' => UploadedFile::fake()->image('avatar.jpg'),
+                'photo' => $this->fakeProfilePhoto(),
             ]);
 
         $response
@@ -131,7 +131,7 @@ class ProfileTest extends TestCase
         $this
             ->actingAs($user)
             ->post('/profile/photo', [
-                'photo' => UploadedFile::fake()->image('avatar.jpg'),
+                'photo' => $this->fakeProfilePhoto(),
             ]);
 
         $path = $user->refresh()->profile_photo_path;
@@ -159,7 +159,7 @@ class ProfileTest extends TestCase
         $this
             ->actingAs($user)
             ->post('/profile/photo', [
-                'photo' => UploadedFile::fake()->image('avatar.jpg'),
+                'photo' => $this->fakeProfilePhoto(),
             ]);
 
         $user->refresh();
@@ -169,5 +169,15 @@ class ProfileTest extends TestCase
             ->get(route('users.profile-photo', $user));
 
         $response->assertOk();
+    }
+
+    private function fakeProfilePhoto(): UploadedFile
+    {
+        $content = base64_decode(
+            'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/r4sAAAAASUVORK5CYII=',
+            true,
+        );
+
+        return UploadedFile::fake()->createWithContent('avatar.png', $content);
     }
 }
