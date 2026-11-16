@@ -84,14 +84,6 @@ const packageEvidence = computed(() => {
     return list.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 });
 
-function parseNullableNum(value) {
-    if (value === '' || value == null) {
-        return null;
-    }
-    const n = Number(value);
-    return Number.isFinite(n) ? n : null;
-}
-
 function accomplishmentRatio(q3Target, q3Actual, q4Target, q4Actual) {
     const t3 = parseNullableNum(q3Target);
     const a3 = parseNullableNum(q3Actual);
