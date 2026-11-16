@@ -14,6 +14,31 @@ class SupervisorTransferTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_admin_edit_user_page_includes_supervisor_options(): void
+    {
+        $admin = User::factory()->create(['role' => UserRole::Administrator]);
+        $supervisor = User::factory()->create(['role' => UserRole::Supervisor]);
+        User::factory()->create([
+            'role' => UserRole::Supervisor,
+            'account_status' => AccountStatus::Pending,
+        ]);
+        $employee = User::factory()->create([
+            'role' => UserRole::Employee,
+            'supervisor_id' => $supervisor->id,
+        ]);
+
+        $response = $this->actingAs($admin)->get(route('admin.users.edit', $employee));
+
+        $response->assertOk();
+        $response->assertInertia(fn ($page) => $page
+            ->component('Admin/Users/Edit')
+            ->where('user.supervisor_id', $supervisor->id)
+            ->has('supervisors', 1)
+            ->where('supervisors.0.id', $supervisor->id)
+            ->where('supervisors.0.name', $supervisor->name)
+        );
+    }
+
     public function test_admin_can_reassign_employee_and_open_submissions(): void
     {
         $admin = User::factory()->create(['role' => UserRole::Administrator]);

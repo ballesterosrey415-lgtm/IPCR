@@ -8,6 +8,7 @@ import { Head, Link, useForm } from '@inertiajs/vue3';
 
 const props = defineProps({
     user: Object,
+    supervisors: Array,
 });
 
 const form = useForm({
@@ -16,12 +17,14 @@ const form = useForm({
     password: '',
     role: props.user.role,
     account_status: props.user.account_status,
+    supervisor_id: props.user.supervisor_id ?? '',
 });
 
 function submit() {
     form.transform((data) => ({
         ...data,
         password: data.password || null,
+        supervisor_id: data.role === 'employee' ? data.supervisor_id || null : null,
     })).patch(route('admin.users.update', props.user.id));
 }
 </script>
@@ -77,6 +80,17 @@ function submit() {
                                 <option value="pending">Pending</option>
                                 <option value="inactive">Inactive</option>
                             </select>
+                        </div>
+                        <div v-if="form.role === 'employee'">
+                            <InputLabel for="supervisor_id" value="Assign Supervisor" />
+                            <select id="supervisor_id" v-model="form.supervisor_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                                <option value="">No supervisor assigned</option>
+                                <option v-for="supervisor in supervisors" :key="supervisor.id" :value="supervisor.id">
+                                    {{ supervisor.name }} ({{ supervisor.email }})
+                                </option>
+                            </select>
+                            <InputError class="mt-2" :message="form.errors.supervisor_id" />
+                            <p class="mt-1 text-sm text-gray-500">The employee can submit an IPCR form once a supervisor is assigned.</p>
                         </div>
                         <div class="md:col-span-2">
                             <PrimaryButton class="bg-amber-600 hover:bg-amber-700 focus:ring-amber-500" :disabled="form.processing">Save changes</PrimaryButton>

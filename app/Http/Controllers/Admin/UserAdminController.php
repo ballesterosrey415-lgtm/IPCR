@@ -38,7 +38,7 @@ class UserAdminController extends Controller
     public function approve(Request $request, User $user): RedirectResponse
     {
         abort_if($user->account_status !== AccountStatus::Pending, 404);
-        abort_if($user->role !== UserRole::Employee, 404);
+        abort_unless(in_array($user->role, [UserRole::Employee, UserRole::Supervisor], true), 404);
 
         $user->update([
             'account_status' => AccountStatus::Active,
@@ -46,7 +46,7 @@ class UserAdminController extends Controller
 
         AuditLogger::log($request->user()->id, 'user.registration.approved', $user, null, $request);
 
-        return to_route('admin.users.pending')->with('status', 'Registration approved. The employee can now sign in.');
+        return to_route('admin.users.pending')->with('status', 'Registration approved. The user can now sign in.');
     }
 
     public function reject(Request $request, User $user): RedirectResponse
@@ -72,6 +72,11 @@ class UserAdminController extends Controller
     {
         return Inertia::render('Admin/Users/Edit', [
             'user' => $user,
+            'supervisors' => User::query()
+                ->where('role', UserRole::Supervisor)
+                ->where('account_status', AccountStatus::Active)
+                ->orderBy('name')
+                ->get(['id', 'name', 'email']),
         ]);
     }
 

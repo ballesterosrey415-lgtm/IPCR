@@ -90,6 +90,12 @@ function formatDate(value) {
                         </div>
 
                         <div class="mt-4 flex flex-wrap gap-2">
+                            <Link
+                                :href="route('admin.users.edit', u.id)"
+                                class="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                            >
+                                Edit account / role
+                            </Link>
                             <PrimaryButton
                                 class="bg-emerald-600 hover:bg-emerald-700 focus:ring-emerald-500"
                                 :disabled="processing[u.id]"

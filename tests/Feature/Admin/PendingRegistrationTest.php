@@ -30,6 +30,38 @@ class PendingRegistrationTest extends TestCase
         $this->assertNull($pending->supervisor_id);
     }
 
+    public function test_admin_can_approve_a_registered_user_after_assigning_supervisor_role(): void
+    {
+        $admin = User::factory()->create(['role' => UserRole::Administrator]);
+        $pendingSupervisor = User::factory()->create([
+            'role' => UserRole::Employee,
+            'account_status' => AccountStatus::Pending,
+        ]);
+
+        $this->actingAs($admin)->patch(route('admin.users.update', $pendingSupervisor), [
+            'name' => $pendingSupervisor->name,
+            'email' => $pendingSupervisor->email,
+            'role' => UserRole::Supervisor->value,
+            'account_status' => AccountStatus::Pending->value,
+            'supervisor_id' => null,
+        ])->assertRedirect(route('admin.users.index'));
+
+        $this->patch(route('admin.users.approve', $pendingSupervisor))
+            ->assertRedirect(route('admin.users.pending'));
+
+        $pendingSupervisor->refresh();
+        $this->assertSame(UserRole::Supervisor, $pendingSupervisor->role);
+        $this->assertSame(AccountStatus::Active, $pendingSupervisor->account_status);
+
+        $employee = User::factory()->create(['role' => UserRole::Employee]);
+        $this->get(route('admin.users.edit', $employee))
+            ->assertInertia(fn ($page) => $page
+                ->component('Admin/Users/Edit')
+                ->has('supervisors', 1)
+                ->where('supervisors.0.id', $pendingSupervisor->id)
+            );
+    }
+
     public function test_admin_can_reject_pending_registration(): void
     {
         $admin = User::factory()->create(['role' => UserRole::Administrator]);
