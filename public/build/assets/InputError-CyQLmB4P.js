@@ -1,0 +1,1 @@
+import{E as e,M as t,R as n,_ as r,l as i,m as a}from"./app-CVU4rtGk.js";var o={class:`text-sm text-red-600`},s={__name:`InputError`,props:{message:{type:String}},setup(s){return(c,l)=>t((e(),r(`div`,null,[a(`p`,o,n(s.message),1)],512)),[[i,s.message]])}};export{s as t};

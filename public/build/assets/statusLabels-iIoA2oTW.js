@@ -1,0 +1,1 @@
+var e={draft:`Draft`,in_review:`In Review`,approved:`Approved`,returned:`Returned`,pending:`Pending`};function t(t){return t?e[t]??String(t).replace(/_/g,` `).replace(/\b\w/g,e=>e.toUpperCase()):`—`}export{t};
